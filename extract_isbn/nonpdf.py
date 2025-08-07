@@ -9,6 +9,8 @@ from calibre.ebooks.oeb.iterator import EbookIterator
 
 from calibre_plugins.extract_isbn.scan import BookScanner
 
+from calibre_plugins.extract_isbn.config import plugin_prefs, STORE_NAME, KEY_FIND_LAST_ISBN
+
 # Define a crude lookup mapping of tuples for when iterating across
 # non PDF books that based on the size of the book dictates the ordering
 # of how many files to scan at the front of the book, then how many
@@ -58,10 +60,12 @@ def get_isbn_from_non_pdf(log, book_path):
                     middle_files = iterator.spine[front_count:rear_count]
                 break
 
+        reverse_first = plugin_prefs[STORE_NAME].get(KEY_FIND_LAST_ISBN, False)
+
         log('  Scanning first %d, then last %d, then remaining %d files' %\
                  (len(first_files), len(last_files), len(middle_files)))
-        for path in first_files:
-            _process_file(path, forward=True)
+        for path in reversed(first_files) if reverse_first else first_files:
+            _process_file(path, forward=not reverse_first)
             if scanner.has_identifier():
                 break
 

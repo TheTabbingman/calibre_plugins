@@ -36,6 +36,7 @@ KEY_WORKER_THRESHOLD = 'workerThreshold'
 KEY_BATCH_SIZE = 'batchSize'
 KEY_DISPLAY_FAILURES = 'displayFailures'
 KEY_ASK_FOR_CONFIRMATION = 'askForConfirmation'
+KEY_FIND_LAST_ISBN = 'findLastIsbn'
 
 SHOW_TASKS = OrderedDict([('none', _('Do not change my search')),
                         ('updated', _('Show the books that have new or updated ISBNs'))])
@@ -46,7 +47,8 @@ DEFAULT_STORE_VALUES = {
     KEY_WORKER_THRESHOLD: 1,
     KEY_BATCH_SIZE: 100,
     KEY_DISPLAY_FAILURES: True,
-    KEY_ASK_FOR_CONFIRMATION: True
+    KEY_ASK_FOR_CONFIRMATION: True,
+    KEY_FIND_LAST_ISBN: False # Default: find the first ISBN
 }
 
 # This is where all preferences for this plugin will be stored
@@ -118,6 +120,14 @@ class ConfigWidget(QWidget):
         self.ask_for_confirmation_checkbox.setChecked(ask_for_confirmation)
         layout.addWidget(self.ask_for_confirmation_checkbox,7, 0, 1, 2)
 
+        find_last = c.get(KEY_FIND_LAST_ISBN, DEFAULT_STORE_VALUES[KEY_FIND_LAST_ISBN])
+        self.find_last_checkbox = QCheckBox(_('Extract last ISBN found (instead of first)'), self)
+        self.find_last_checkbox.setChecked(find_last)
+        self.find_last_checkbox.setToolTip(_('Some publishers place multiple ISBNs in metadata. '
+                                             'Check this to extract the last one in the first pages instead of the first.'))
+        layout.addWidget(self.find_last_checkbox, 8, 0, 1, 2)
+
+
         button_layout = QHBoxLayout()
         keyboard_shortcuts_button = QPushButton(' '+_('Keyboard shortcuts')+'... ', self)
         keyboard_shortcuts_button.setToolTip(_('Edit the keyboard shortcuts associated with this plugin'))
@@ -128,7 +138,7 @@ class ConfigWidget(QWidget):
         help_button.setIcon(get_icon('help.png'))
         help_button.clicked.connect(show_help)
         button_layout.addWidget(help_button)
-        layout.addLayout(button_layout, 8, 0, 1, 2)
+        layout.addLayout(button_layout, 9, 0, 1, 2)
 
     def save_settings(self):
         new_prefs = {}
@@ -139,6 +149,7 @@ class ConfigWidget(QWidget):
         new_prefs[KEY_BATCH_SIZE] = int(unicode(self.batch_spin.value()))
         new_prefs[KEY_DISPLAY_FAILURES] = self.display_failures_checkbox.isChecked()
         new_prefs[KEY_ASK_FOR_CONFIRMATION] = self.ask_for_confirmation_checkbox.isChecked()
+        new_prefs[KEY_FIND_LAST_ISBN] = self.find_last_checkbox.isChecked()
 
         plugin_prefs[STORE_NAME] = new_prefs
 
